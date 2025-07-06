@@ -1,0 +1,488 @@
+/* --- CSS Custom Properties (Variables) --- */
+:root {
+    --color-background-dark: #2a2a2a; /* Slightly lighter dark */
+    --color-card-background: #383838; /* More distinct card background */
+    --color-border-light: #555;
+    --color-text-light: #c0c0c0; /* Lighter text */
+    --color-text-white: #f0f0f0; /* Off-white */
+    --color-primary-blue: #008cff; /* Brighter blue */
+    --color-primary-blue-dark: #006bb3;
+    --color-success-green: #76ff76;
+    --color-error-red: #ff7676;
+    --color-danger-red: #e00;
+
+    --spacing-xs: 5px;
+    --spacing-s: 10px;
+    --spacing-m: 15px;
+    --spacing-l: 20px;
+    --spacing-xl: 30px;
+
+    --border-radius-s: 4px;
+    --border-radius-m: 8px;
+    --border-radius-l: 10px; /* Slightly less rounded */
+}
+
+
+/* --- Global & Layout Overrides --- */
+
+/* Make ALL .container elements full width */
+.container {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.list-box.hidden-sm {
+  display: none;
+}
+
+.horizontal-sidebar-container {
+  display: flex;
+  gap: 2rem; /* optional spacing between boxes */
+}
+
+.horizontal-sidebar-container .list-box {
+  flex: 1; /* allow boxes to take equal width or remove this for auto-sizing */
+}
+
+.horizontal-sidebar-container ul {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem; /* space between items */
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.horizontal-sidebar-container li {
+  white-space: nowrap; /* prevent line breaks in list items */
+}
+
+.horizontal-sidebar-container h2 {
+  margin-bottom: 0.5rem;
+}
+
+
+/* Adjust padding for .row elements to maintain inner spacing */
+.row {
+    padding-inline: var(--spacing-l); /* More padding for full-width layout */
+}
+
+/* Ensure main content area takes full available width when sidebar is hidden */
+.col-9.page-content {
+    width: 100%;
+    float: none;
+}
+
+/* Hide the sidebar */
+aside.col-3 {
+    display: none;
+}
+
+/* Hide the original table list */
+.featured-list .table-list-wrap {
+    display: none;
+}
+
+/* --- Card Grid Container (Full-Width Stacked Posts) --- */
+.torrent-cards-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    row-gap: var(--spacing-xl);
+    padding: var(--spacing-xl) 0;
+    column-gap: 0;
+}
+
+/* --- Individual Card Styling --- */
+.torrent-card {
+    background-color: var(--color-card-background);
+    border-radius: var(--border-radius-l);
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Softer shadow */
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    display: flex;
+    flex-direction: column;
+}
+
+.torrent-card:hover {
+    transform: translateY(-5px); /* Subtle lift */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5); /* Slightly darker shadow on hover */
+}
+
+/* --- Image Gallery Stack within Card (Full-Resolution Horizontal Scrollable Images) --- */
+.torrent-card .image-gallery-stack {
+    width: 100%;
+    border-bottom: 1px solid var(--color-border-light);
+    background-color: var(--color-background-dark);
+    padding: var(--spacing-m);
+
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    scroll-padding: var(--spacing-m);
+}
+
+/* Images within the stack */
+.torrent-card .image-gallery-stack img {
+    max-height: 350px; /* Generous height for "full size" */
+    width: auto;
+    object-fit: contain;
+
+    flex-shrink: 0;
+    display: inline-block;
+    margin-right: var(--spacing-m);
+
+    border-radius: var(--border-radius-s);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    transform: none;
+    transform-origin: 50% 50%;
+    user-select: auto;
+    touch-action: auto;
+    scroll-snap-align: center;
+}
+
+/* When image is loaded, it becomes visible */
+.torrent-card .image-gallery-stack img.loaded {
+    opacity: 1;
+}
+
+/* Remove margin for the last image in the stack */
+.torrent-card .image-gallery-stack img:last-child {
+    margin-right: 0;
+    margin-bottom: 0;
+}
+
+/* Skeleton loader background for images */
+.torrent-card .image-gallery-stack .image-skeleton {
+    flex-shrink: 0;
+    margin-right: var(--spacing-m);
+    height: 350px; /* Match max-height */
+    width: 500px; /* Example width for skeleton, adjust as needed */
+    padding-top: 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    background-image: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0),
+        rgba(255, 255, 255, 0.2) 20%,
+        rgba(255, 255, 255, 0) 40%
+    );
+    background-repeat: no-repeat;
+    background-size: 800px 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: var(--border-radius-s);
+}
+
+/* Hide skeleton once image is loaded */
+.torrent-card .image-gallery-stack img.loaded + .image-skeleton {
+    display: none;
+}
+
+/* Placeholder for no images */
+.torrent-card .image-gallery-stack .no-image-placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 350px; /* Match max-height */
+    width: 100%;
+    color: var(--color-text-light);
+    font-style: italic;
+    font-size: 1.2em;
+    text-align: center;
+    padding: var(--spacing-s);
+}
+
+
+/* --- Image Expansion Modal --- */
+.image-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0s linear 0.3s;
+}
+
+.image-modal-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+}
+
+.image-modal-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border-radius: var(--border-radius-m);
+    background-color: var(--color-background-dark);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+    transform: scale(0.9);
+    transition: transform 0.3s ease-in-out;
+}
+
+.image-modal-overlay.visible .image-modal-content {
+    transform: scale(1);
+}
+
+/* Image inside modal */
+.image-modal-content img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    cursor: default;
+    user-select: none;
+    touch-action: auto;
+    transition: opacity 0.3s ease-in-out; /* Smooth transition for image changes */
+}
+
+/* Spinner for modal image loading */
+.image-modal-content .modal-image-spinner {
+    position: absolute;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid var(--color-primary-blue);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    z-index: 10; /* Above the image */
+}
+
+.image-modal-content img.loading + .modal-image-spinner {
+    display: block;
+}
+
+.image-modal-content img:not(.loading) + .modal-image-spinner {
+    display: none;
+}
+
+
+.image-modal-close-btn {
+    position: absolute;
+    top: var(--spacing-m);
+    right: var(--spacing-m); /* Adjusted for better spacing */
+    color: var(--color-text-white);
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.2s ease-in-out;
+    z-index: 1002; /* Above nav buttons and indicators */
+}
+
+.image-modal-close-btn:hover {
+    color: var(--color-danger-red);
+}
+
+.modal-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.6); /* Slightly more transparent */
+    color: var(--color-text-white);
+    border: none;
+    padding: var(--spacing-s) var(--spacing-m); /* Slightly smaller padding */
+    cursor: pointer;
+    font-size: 2.2em; /* Slightly larger arrows */
+    font-weight: bold;
+    border-radius: var(--border-radius-m); /* More rounded */
+    z-index: 1001;
+    opacity: 0.7; /* Slightly less opaque by default */
+    transition: opacity 0.2s, background-color 0.2s, transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px; /* Larger hit area */
+    height: 60px; /* Larger hit area */
+}
+
+.modal-nav-btn:hover {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.9);
+    transform: translateY(-50%) scale(1.05); /* Subtle scale effect on hover */
+}
+
+.modal-nav-btn.prev {
+    left: var(--spacing-m);
+}
+
+.modal-nav-btn.next {
+    right: var(--spacing-m);
+}
+
+.modal-nav-btn.hidden {
+    display: none;
+}
+
+/* Carousel indicators */
+.modal-carousel-indicators {
+    position: absolute;
+    bottom: var(--spacing-m);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: var(--spacing-s); /* Space between dots */
+    z-index: 1001;
+    background-color: rgba(0, 0, 0, 0.4); /* Subtle background for indicators */
+    border-radius: var(--border-radius-m);
+    padding: var(--spacing-xs) var(--spacing-s);
+}
+
+.modal-carousel-indicator {
+    width: 12px; /* Slightly larger dots */
+    height: 12px; /* Slightly larger dots */
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.modal-carousel-indicator.active {
+    background-color: var(--color-primary-blue);
+    transform: scale(1.3); /* More pronounced scale */
+}
+
+.modal-carousel-indicator:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* New: Progress Bar for Auto-Scrolling */
+.modal-carousel-progress {
+    position: absolute;
+    bottom: 0; /* Position at the very bottom of the content */
+    left: 0;
+    width: 100%;
+    height: 5px; /* Thin progress bar */
+    background-color: rgba(255, 255, 255, 0.1);
+    z-index: 1001; /* Above other content, below nav/indicators */
+    border-bottom-left-radius: var(--border-radius-m);
+    border-bottom-right-radius: var(--border-radius-m);
+    overflow: hidden; /* Ensure fill stays within bounds */
+}
+
+.modal-carousel-progress-fill {
+    height: 100%;
+    width: 0%;
+    background-color: var(--color-primary-blue);
+    transition: width linear; /* Smooth fill animation */
+}
+
+/* --- Card Content & Button --- */
+.torrent-card .card-content {
+    padding: var(--spacing-l);
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.torrent-card .card-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    margin-bottom: var(--spacing-m);
+    color: var(--color-text-white);
+    text-decoration: none;
+    line-height: 1.3;
+}
+
+.torrent-card .card-title:hover {
+    text-decoration: underline;
+}
+
+.torrent-card .card-details {
+    font-size: 1em;
+    color: var(--color-text-light);
+    margin-bottom: var(--spacing-l);
+}
+
+.torrent-card .card-details p {
+    margin: var(--spacing-s) 0;
+}
+
+.torrent-card .card-details .seeds {
+    color: var(--color-success-green);
+}
+
+.torrent-card .card-details .leeches {
+    color: var(--color-error-red);
+}
+
+.torrent-card .magnet-download-btn {
+    display: block;
+    width: 100%;
+    padding: var(--spacing-m) var(--spacing-l);
+    background-color: var(--color-primary-blue);
+    color: var(--color-text-white);
+    text-align: center;
+    text-decoration: none;
+    border-radius: var(--border-radius-m);
+    transition: background-color 0.2s ease;
+    margin-top: auto;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.torrent-card .magnet-download-btn:hover {
+    background-color: var(--color-primary-blue-dark);
+}
+
+/* --- Spinner --- */
+.loading-spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid var(--color-primary-blue);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 50px auto;
+    display: none;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+/* --- Scroll-to-Top Button --- */
+#scroll-to-top {
+    position: fixed;
+    bottom: var(--spacing-xl);
+    right: var(--spacing-xl);
+    background-color: rgba(51, 51, 51, 0.8);
+    color: var(--color-text-white);
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 1.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    z-index: 999;
+}
+
+#scroll-to-top.show {
+    opacity: 1;
+    visibility: visible;
+}
