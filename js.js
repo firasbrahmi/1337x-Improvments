@@ -1,11 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const featuredList = document.querySelector('.featured-list');
-    const tableBody = featuredList ? featuredList.querySelector('.table-list tbody') : null;
-    const mainContentArea = document.querySelector('.col-9.page-content');
+    // Change: Target the actual main content area as the primary container
+    const mainContentContainer = document.querySelector('.col-9.page-content');
+    const tableBody = mainContentContainer ? mainContentContainer.querySelector('.table-list tbody') : null;
     const sidebar = document.querySelector('aside.col-3');
 
-    if (!tableBody || !mainContentArea || !sidebar) {
-        console.error('Could not find essential elements (torrent list table, main content area, or sidebar). Make sure the HTML structure is as expected.');
+    if (!tableBody || !mainContentContainer || !sidebar) {
+        console.error('Could not find essential elements (torrent list table body, main content area, or sidebar). Make sure the HTML structure is as expected.');
         return;
     }
 
@@ -21,18 +21,28 @@ document.addEventListener('DOMContentLoaded', () => {
     // Insert the new horizontal sidebar container at the top of the main content wrapper
     const mainWrapper = document.querySelector('main.container');
     if (mainWrapper) {
-        mainWrapper.insertBefore(horizontalSidebarContainer, mainContentArea.closest('.row') || mainContentArea);
+        // Find the .row that contains the main content area and insert before it
+        const mainContentRow = mainContentContainer.closest('.row');
+        if (mainContentRow) {
+            mainWrapper.insertBefore(horizontalSidebarContainer, mainContentRow);
+        } else {
+            // Fallback if .row is not found, insert before the main content area itself
+            mainContentContainer.parentNode.insertBefore(horizontalSidebarContainer, mainContentContainer);
+        }
     } else {
-        mainContentArea.parentNode.insertBefore(horizontalSidebarContainer, mainContentArea);
+        // Fallback if main.container is not found
+        mainContentContainer.parentNode.insertBefore(horizontalSidebarContainer, mainContentArea);
     }
 
     const cardsContainer = document.createElement('div');
     cardsContainer.classList.add('torrent-cards-container');
-    featuredList.appendChild(cardsContainer);
+    // Change: Append cardsContainer to the mainContentContainer
+    mainContentContainer.appendChild(cardsContainer);
 
     const spinner = document.createElement('div');
     spinner.classList.add('loading-spinner');
-    featuredList.appendChild(spinner);
+    // Change: Append spinner to the mainContentContainer
+    mainContentContainer.appendChild(spinner);
 
     // --- Infinite Scrolling Variables ---
     let currentPage = 1;
@@ -40,14 +50,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let isLoadingMore = false;
 
     // Ensure the original table is NOT hidden by previous styles
-    const originalTableWrap = featuredList.querySelector('.table-list-wrap');
+    // Change: Select tableWrap relative to mainContentContainer
+    const originalTableWrap = mainContentContainer.querySelector('.table-list-wrap');
     if (originalTableWrap) {
-        originalTableWrap.style.display = 'block';
+        originalTableWrap.style.display = 'block'; // Ensure it's visible initially for processing
     }
-    const originalPagination = featuredList.querySelector('.pagination');
+    // Change: Select pagination relative to mainContentContainer
+    const originalPagination = mainContentContainer.querySelector('.pagination');
     if (originalPagination) {
-        originalPagination.style.display = 'block';
-        featuredList.appendChild(originalPagination);
+        originalPagination.style.display = 'block'; // Ensure it's visible initially for processing
+        // Change: Append originalPagination to the mainContentContainer if needed, though it will be hidden by CSS later
+        mainContentContainer.appendChild(originalPagination);
     }
 
     // --- Global Modal Elements Setup ---
@@ -309,6 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Enhanced Grab-to-Scroll Functionality ---
+    // This part remains largely the same as it targets internal elements of the cards
     document.querySelectorAll('.torrent-card .image-gallery-stack').forEach(gallery => {
         let isDown = false;
         let startX;
@@ -601,10 +615,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const currentPath = window.location.pathname;
         const parts = currentPath.split('/');
-        parts[parts.length - 2] = pageNumber.toString();
-        let nextPageUrl = parts.join('/');
+        // Handle cases where the last part might be empty or not a number
+        let baseUrlParts = [...parts];
+        if (baseUrlParts[baseUrlParts.length - 1] === '') {
+            baseUrlParts.pop(); // Remove trailing slash empty part
+        }
+        // If the last part is a number (page number), replace it
+        if (!isNaN(parseInt(baseUrlParts[baseUrlParts.length - 1]))) {
+            baseUrlParts[baseUrlParts.length - 1] = pageNumber.toString();
+        } else {
+            // If no page number at the end, append it
+            baseUrlParts.push(pageNumber.toString());
+        }
+        let nextPageUrl = baseUrlParts.join('/');
         if (!nextPageUrl.endsWith('/')) {
-             nextPageUrl += '/';
+             nextPageUrl += '/'; // Ensure trailing slash for consistent URL structure
         }
 
         try {
@@ -619,14 +644,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const newTorrentRows = Array.from(doc.querySelectorAll('.table-list tbody tr'));
             if (newTorrentRows.length === 0) {
                 console.log('No more torrents found on page', pageNumber);
-                lastPage = currentPage - 1;
+                lastPage = currentPage - 1; // Mark current page as last if no new rows
             } else {
                 for (const row of newTorrentRows) {
                     await processTorrent(row);
                 }
             }
 
-            const fetchedPaginationDiv = doc.querySelector('.featured-list .pagination');
+            // Change: Select pagination relative to the fetched document's main content area
+            const fetchedPaginationDiv = doc.querySelector('.col-9.page-content .pagination');
             if (fetchedPaginationDiv) {
                 const lastPageLink = fetchedPaginationDiv.querySelector('li.last a');
                 if (lastPageLink) {
@@ -645,6 +671,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             } else {
+                // If no pagination found, assume current page is the last or only page
                 lastPage = currentPage;
             }
 
@@ -652,7 +679,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Error fetching more torrents:', error);
-            lastPage = currentPage - 1;
+            lastPage = currentPage - 1; // In case of error, stop trying to fetch more
         } finally {
             isLoadingMore = false;
             spinner.style.display = 'none';
@@ -681,7 +708,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         spinner.style.display = 'none';
 
-        const initialPaginationDiv = document.querySelector('.featured-list .pagination');
+        // Change: Select pagination relative to the initial main content area
+        const initialPaginationDiv = mainContentContainer.querySelector('.pagination');
         if (initialPaginationDiv) {
             const lastPageLink = initialPaginationDiv.querySelector('li.last a');
             if (lastPageLink) {
@@ -700,11 +728,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
-        currentPage = 2;
+        currentPage = 2; // Set current page for next fetch to 2
     };
 
     processInitialRows().then(() => {
-        infiniteScrollObserver.observe(spinner);
+        // Only observe if there's more than one page or if initial processing didn't find all content
+        if (lastPage >= currentPage) {
+            infiniteScrollObserver.observe(spinner);
+        } else {
+            console.log("Only one page of content, infinite scroll not needed.");
+            spinner.style.display = 'none'; // Hide spinner if no more pages
+        }
     });
 
     // --- Scroll-to-Top Button Logic ---
