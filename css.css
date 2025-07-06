@@ -40,10 +40,19 @@
 .horizontal-sidebar-container {
   display: flex;
   gap: 2rem; /* optional spacing between boxes */
+  /* Add padding to the horizontal sidebar container for visual spacing */
+  padding: var(--spacing-l);
+  background-color: var(--color-card-background); /* Match card background or choose another */
+  border-bottom: 1px solid var(--color-border-light);
+  margin-bottom: var(--spacing-xl); /* Space between horizontal sidebar and content */
+  border-radius: var(--border-radius-l);
+  flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+  justify-content: center; /* Center items when they wrap */
 }
 
 .horizontal-sidebar-container .list-box {
   flex: 1; /* allow boxes to take equal width or remove this for auto-sizing */
+  min-width: 200px; /* Ensure boxes don't get too small */
 }
 
 .horizontal-sidebar-container ul {
@@ -62,11 +71,13 @@
 
 .horizontal-sidebar-container h2 {
   margin-bottom: 0.5rem;
+  color: var(--color-text-white); /* Ensure heading is visible */
 }
 
 
 /* Adjust padding for .row elements to maintain inner spacing */
-.row {
+/* Change: Apply padding to the .row that contains .col-9.page-content */
+.container > .row {
     padding-inline: var(--spacing-l); /* More padding for full-width layout */
 }
 
@@ -82,9 +93,17 @@ aside.col-3 {
 }
 
 /* Hide the original table list */
-.featured-list .table-list-wrap {
+/* Change: Target .table-list-wrap within .col-9.page-content */
+.col-9.page-content .table-list-wrap {
     display: none;
 }
+
+/* Hide the original pagination */
+/* Change: Target .pagination within .col-9.page-content */
+.col-9.page-content .pagination {
+    display: none;
+}
+
 
 /* --- Card Grid Container (Full-Width Stacked Posts) --- */
 .torrent-cards-container {
@@ -113,88 +132,107 @@ aside.col-3 {
 
 /* --- Image Gallery Stack within Card (Full-Resolution Horizontal Scrollable Images) --- */
 .torrent-card .image-gallery-stack {
-    width: 100%;
-    border-bottom: 1px solid var(--color-border-light);
-    background-color: var(--color-background-dark);
-    padding: var(--spacing-m);
+ width: 100%;
+ border-bottom: 1px solid var(--color-border-light);
+ background-color: var(--color-background-dark);
+ padding: var(--spacing-m);
 
-    display: flex;
-    overflow-x: auto;
-    white-space: nowrap;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x mandatory;
-    scroll-padding: var(--spacing-m);
+ display: flex;
+ overflow-x: auto; /* This keeps the scrollbar visible */
+ white-space: nowrap;
+ -webkit-overflow-scrolling: touch;
+ scroll-snap-type: x mandatory;
+ scroll-padding: var(--spacing-m);
+
+    /* Removed the following lines that hid the scrollbar: */
+ /* scrollbar-width: none; */
+ /* -ms-overflow-style: none; */
 }
 
-/* Images within the stack */
+.torrent-card .image-gallery-stack::-webkit-scrollbar {
+ /* Removed this line that hid the scrollbar for Webkit browsers: */
+ /* display: none; */
+    /* You can add styling for the scrollbar here if you wish, e.g.: */
+    height: 8px; /* Example height for the scrollbar */
+}
+
+.torrent-card .image-gallery-stack::-webkit-scrollbar-thumb {
+    background-color: var(--color-primary-blue); /* Example color for the scrollbar thumb */
+    border-radius: 4px;
+}
+
+.torrent-card .image-gallery-stack::-webkit-scrollbar-track {
+    background-color: var(--color-background-dark); /* Example color for the scrollbar track */
+}
+
 .torrent-card .image-gallery-stack img {
-    max-height: 350px; /* Generous height for "full size" */
-    width: auto;
-    object-fit: contain;
+ max-height: 350px; /* Generous height for "full size" */
+ width: auto;
+ object-fit: contain;
 
-    flex-shrink: 0;
-    display: inline-block;
-    margin-right: var(--spacing-m);
+ flex-shrink: 0;
+ display: inline-block;
+ margin-right: var(--spacing-m);
 
-    border-radius: var(--border-radius-s);
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.5s ease-in-out;
-    transform: none;
-    transform-origin: 50% 50%;
-    user-select: auto;
-    touch-action: auto;
-    scroll-snap-align: center;
+ border-radius: var(--border-radius-s);
+ cursor: pointer;
+ opacity: 0;
+ transition: opacity 0.5s ease-in-out;
+ transform: none;
+ transform-origin: 50% 50%;
+ user-select: auto;
+ touch-action: auto;
+ scroll-snap-align: center;
 }
 
 /* When image is loaded, it becomes visible */
 .torrent-card .image-gallery-stack img.loaded {
-    opacity: 1;
+ opacity: 1;
 }
 
 /* Remove margin for the last image in the stack */
 .torrent-card .image-gallery-stack img:last-child {
-    margin-right: 0;
-    margin-bottom: 0;
+ margin-right: 0;
+ margin-bottom: 0;
 }
 
 /* Skeleton loader background for images */
 .torrent-card .image-gallery-stack .image-skeleton {
-    flex-shrink: 0;
-    margin-right: var(--spacing-m);
-    height: 350px; /* Match max-height */
-    width: 500px; /* Example width for skeleton, adjust as needed */
-    padding-top: 0;
-    background-color: rgba(255, 255, 255, 0.1);
-    background-image: linear-gradient(
-        to right,
-        rgba(255, 255, 255, 0),
-        rgba(255, 255, 255, 0.2) 20%,
-        rgba(255, 255, 255, 0) 40%
-    );
-    background-repeat: no-repeat;
-    background-size: 800px 100%;
-    animation: shimmer 1.5s infinite;
-    border-radius: var(--border-radius-s);
+ flex-shrink: 0;
+ margin-right: var(--spacing-m);
+ height: 350px; /* Match max-height */
+ width: 500px; /* Example width for skeleton, adjust as needed */
+ padding-top: 0;
+ background-color: rgba(255, 255, 255, 0.1);
+ background-image: linear-gradient(
+  to right,
+  rgba(255, 255, 255, 0),
+  rgba(255, 255, 255, 0.2) 20%,
+  rgba(255, 255, 255, 0) 40%
+ );
+ background-repeat: no-repeat;
+ background-size: 800px 100%;
+ animation: shimmer 1.5s infinite;
+ border-radius: var(--border-radius-s);
 }
 
 /* Hide skeleton once image is loaded */
 .torrent-card .image-gallery-stack img.loaded + .image-skeleton {
-    display: none;
+ display: none;
 }
 
 /* Placeholder for no images */
 .torrent-card .image-gallery-stack .no-image-placeholder {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 350px; /* Match max-height */
-    width: 100%;
-    color: var(--color-text-light);
-    font-style: italic;
-    font-size: 1.2em;
-    text-align: center;
-    padding: var(--spacing-s);
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ height: 350px; /* Match max-height */
+ width: 100%;
+ color: var(--color-text-light);
+ font-style: italic;
+ font-size: 1.2em;
+ text-align: center;
+ padding: var(--spacing-s);
 }
 
 
